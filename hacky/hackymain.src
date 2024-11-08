@@ -1,0 +1,81 @@
+import_code("/home/JohnM/Programs/Hacky/hackyfunctions.src")
+
+while true
+	clear_screen
+	print "-------------------"
+	print "- Hacky Tool v1.0 -"
+	print "-------------------"
+
+	// Get target IP
+	if not ip then
+		ip = user_input("Enter target IP: ")
+		print "-------------------"
+	end if
+	// IP validation
+	if not is_valid_ip(ip) then
+		ip = null
+		funErrorHandling "Error: Invalid IP address"
+		continue
+	end if
+	// Get target port
+	if not target_port then
+		import_code("/home/JohnM/Programs/Hacky/hackymap.src")
+	end if
+
+	// Establish connection
+	net_session = metaxploit.net_use(ip, target_port.port_number)
+	if net_session then metalib = net_session.dump_lib
+
+	// Target infos
+	print "Target IP: " + ip
+	print "Target Port: " + target_port.port_number
+	print "-------------------"
+	if net_session then
+		print "Connection status: OKAY"
+		print "Library used: " + metalib.lib_name + " v" + metalib.version
+	else
+		print "Connection status: NULL"
+		print "Library used: NULL"
+	end if
+	if exploits.len == 0 then
+		print "No exploits found (Use scanner)"
+	else
+		print exploits.len + " exploits found"
+	end if
+	print "-------------------"
+
+	// Menu
+	print "1) Change target IP"
+	print "2) Change target port"
+
+	print "3) Scanner (No requirements exploits)"
+	print "4) Scanner (All exploits)"
+	print "5) Attack (" + exploits.len + " exploits found)"
+	print "\n0) Exit\n"
+
+	input = user_input("Select option = ")
+	if input == "0" then exit
+	if input == "1" then
+		ip = null
+		target_port = null
+		continue
+	end if
+	if input == "2" then
+		target_port = null
+		continue
+	end if
+	if input == "3" then
+		if not metalib then
+			funErrorHandling "Error: No library to scan"
+			continue
+		end if
+		import_code("/home/JohnM/Programs/Hacky/hackyscanner.src")
+	end if
+	if input == "4" then
+		print "Not yet implemented"
+		user_input "", false, true
+	end if
+	if input == "5" then
+		import_code("/home/JohnM/Programs/Hacky/hackyattack.src")
+	end if
+end while

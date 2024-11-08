@@ -1,0 +1,22 @@
+clear_screen
+print "Start scanning library: " + metalib.lib_name + " v" + metalib.version
+// Scan library
+memlist = metaxploit.scan(metalib)
+
+for memAddress in memlist
+	segments = metaxploit.scan_address(metalib, memAddress)
+	segments = segments.split("Unsafe check: ")
+	segments.remove 0
+	for segment in segments
+		unsecValue = segment[segment.indexOf("<b>") + 3 : segment.indexOf("</b>")]
+		if segment.indexOf("*") == null then
+			exploits.push(
+				{
+					"memAddress": memAddress,
+					"unsecValue": unsecValue,
+				})
+		end if
+	end for
+end for
+print "Scan complete: " + exploits.len + " exploits found"
+user_input "--- Press any key ---", false, true

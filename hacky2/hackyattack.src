@@ -1,0 +1,60 @@
+attack = function(metalib, exploits)
+	for exploit in exploits
+		result = metalib.overflow(exploit.memAddress, exploit.unsecValue)
+		print "Exploit type: " + typeof(result)
+		globals.exploitsRes.push result
+
+		if typeof(exploit) == "file" then print(exploit.path)
+	end for
+end function
+
+
+
+test = function
+	clear_screen
+	// Display exploits
+	print "Vulnerabilities found on " + metalib.lib_name + " v" + metalib.version
+	info = "# MEMADDRESS UNSECVALUE"
+	i = 0
+	for exploit in exploits
+		info = info + "\n" + i + " " + exploit.memAddress + " " + exploit.unsecValue
+		i += 1
+	end for
+	print format_columns(info) + "\n"
+	target_exploit = exploits[user_input("Select target vulnerability = ").to_int]
+
+	// Attack
+	clear_screen
+	print "Start attack on " + target_exploit.memAddress + " ; " + target_exploit.unsecValue
+	attack = null
+
+	attack = metalib.overflow(target_exploit.memAddress, target_exploit.unsecValue)
+	print "Exploit type: " + typeof(attack)
+
+	// Exploit SHELL
+	if typeof(attack) == "shell" then attack.start_terminal
+
+	// Exploit COMPUTER
+	if typeof(attack) == "computer" then
+		input = user_input("Enter path to get file (Default = /etc/passwd)\n=")
+		file = null
+		if input == "" then file = attack.File("/etc/passwd") else file = attack.File(input)
+		if file.is_folder then
+			for child in file.get_files
+				print child.name
+			end for
+		else
+			print file.get_content
+		end if
+	end if
+
+	// Use exploit FILE
+	if typeof(exploit) == "file" then
+		print exploit.path
+		for file in exploit.get_files
+			if file.name == "passwd" then print("/nFile /etc/passwd content:/n" + file.get_content)
+		end for
+	end if
+
+	user_input "--- Press any key ---", false, true
+end function

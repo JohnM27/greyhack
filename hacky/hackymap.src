@@ -1,0 +1,48 @@
+// Get router
+isLanIp = is_lan_ip(ip)
+if isLanIp then
+	router = get_router
+else
+	router = get_router(ip)
+end if
+if router == null then
+	funErrorHandling "Error: Invalid IP address"
+	continue
+end if
+
+// Get ports
+if not isLanIp then
+	ports = router.used_ports
+else
+	ports = router.device_ports(ip)
+end if
+if ports == null then
+	funErrorHandling "Error: IP address not found"
+	continue
+end if
+if ports.len == 0 then
+	funErrorHandling "Error: No open ports"
+	continue
+end if
+if typeof(ports) == "string" then
+	print ports
+	user_input "", false, true
+	continue
+end if
+
+// Display ports
+info = "# PORT STATE SERVICE VERSION LAN"
+i = 0
+for port in ports
+	service_info = router.port_info(port)
+	lan_ip = port.get_lan_ip
+	port_status = "open"
+	if port.is_closed and not isLanIp then
+		port_status = "closed"
+	end if
+	info = info + "\n" + i + " " + port.port_number + " " + port_status + " " + service_info + " " + lan_ip
+	i += 1
+end for
+print format_columns(info) + "\n"
+target_port = ports[user_input("Select target port = ").to_int]
+continue

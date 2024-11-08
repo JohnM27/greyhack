@@ -1,0 +1,8 @@
+lib = include_lib("/server/httpd")
+if params[0] == "start" then
+	lib.start_service
+end if
+if params[0] == "stop" then
+	lib.stop_service
+end if
+exit "Error"

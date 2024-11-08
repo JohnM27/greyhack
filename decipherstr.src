@@ -1,0 +1,8 @@
+if params.len != 1 or params[0] == "-h" or params[0] == "--help" then
+	exit "Usage: " + program_path.split("/")[-1] + " [string_to_decipher] "
+end if
+
+crypto = include_lib("/lib/crypto.so")
+if not crypto then exit("Error: Missing crypto library")
+
+print crypto.decipher(params[0])

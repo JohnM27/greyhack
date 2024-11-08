@@ -1,0 +1,73 @@
+// Check params
+if params.len != 1 or params[0] == "-h" or params[0] == "--help" then exit(command_info("scanrouter_usage"))
+
+ipAddress = params[0]
+
+// Program start
+print "--- Router Scanner 1.0 ---"
+// router
+router = get_router(ipAddress)
+if router == null then exit("scanrouter: ip address not found")
+// metaxploit lib
+metaxploit = include_lib("/lib/metaxploit.so")
+if not metaxploit then exit("Error: Missing metaxploit library")
+
+// Display router_kernel version
+version = router.kernel_version
+if not version then
+	print "Warning: kernel_router.so not found"
+else
+	print "kernel_router.so : v" + version
+end if
+
+// Display firewall rules
+firewall_rules = router.firewall_rules
+if typeof(firewall_rules) == "string" then exit(firewall_rules)
+print "\nScanning firewall rules..."
+if firewall_rules.len == 0 then exit("No rules found.")
+info = "ACTION PORT SOURCE_IP DESTINATION_IP"
+for rules in firewall_rules
+	info = info + "\n" + rules
+end for
+print format_columns(info) + "\n"
+
+// All data
+allData = false
+if params.len == 2 and (params[1] == "-a" or params[1] == "--all") then
+	allData = true
+end if
+
+// Scan
+
+
+
+
+net_session = metaxploit.net_use(address, port)
+
+if not net_session then exit("Error: Unable to connect")
+print "Connection established"
+
+metalib = net_session.dump_lib
+print "Start scanning " + metalib.lib_name + " v" + metalib.version
+memlist = metaxploit.scan(metalib)
+
+i = 0
+for memAddress in memlist
+	segments = metaxploit.scan_address(metalib, memAddress)
+	segments = segments.split("Unsafe check: ")
+	segments.remove 0
+	for segment in segments
+		varName = segment[segment.indexOf("<b>") + 3 : segment.indexOf("</b>")]
+		if (not allData and segment.indexOf("*") == null) or (allData) then
+			print i + ") " + memAddress + " ; " + varName
+
+			i += 1
+			if segment.indexOf("*") != null then
+				print segment[segment.indexOf("*") : segment.indexOf("\n") + 2]
+			else
+				print ""
+			end if
+		end if
+	end for
+end for
+exit "--- Scan complete ---"

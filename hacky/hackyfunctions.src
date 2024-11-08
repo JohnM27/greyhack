@@ -1,0 +1,18 @@
+// Libraries
+metaxploit = include_lib("/lib/metaxploit.so")
+if not metaxploit then exit("Error: Missing metaxploit library")
+
+// Variables
+ip = null // Target IP
+ports = null // List of all ports
+target_port = null // Target port
+net_session = null // Current netSession
+metalib = null // Current library used in netSession
+exploits = [] // List of exploits found for the current metalib
+target_exploit = null // Target exploit
+
+// Function
+funErrorHandling = function(msg)
+	print msg
+	user_input "--- Press any key ---", false, true
+end function

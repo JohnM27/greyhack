@@ -1,0 +1,54 @@
+// Libraries
+metaxploit = include_lib("/lib/metaxploit.so")
+if not metaxploit then metaxploit = include_lib("./metaxploit.so")
+if not metaxploit then exit("Error: Missing metaxploit library")
+
+// Variables
+Target = {}
+Target.ip = null
+Target.port = null
+Target.lib = null
+
+net_session = null // Current netSession
+exploits = [] // List of exploits found for the current metalib
+exploitsRes = [] // List of exploits result after overflow
+
+// Display infos
+funDisplayInfos = function
+	print "-------------------"
+	if Target.ip then
+		print "Target IP: " + Target.ip
+	else
+		print "Target IP: NULL"
+	end if
+	if Target.port != null then
+		print "Target port: " + Target.port
+	else
+		print "Target port: NULL"
+	end if
+	if net_session then
+		print "Connection status: OKAY"
+		print "Library used: " + Target.lib.lib_name + " v" + Target.lib.version
+	else
+		print "Connection status: NULL"
+		print "Library used: NULL"
+	end if
+	print "-------------------"
+end function
+
+// Establish connection (netSession)
+funEstablishConnection = function(ip, port)
+	globals.net_session = metaxploit.net_use(ip, port)
+	if net_session then Target.lib = net_session.dump_lib
+end function
+
+// Reset variables
+funResetVariables = function(resetIP)
+	if resetIP then globals.Target.ip = null
+	globals.Target.port = null
+	globals.Target.lib = null
+
+	globals.net_session = null
+	globals.exploits = []
+	globals.exploitsRes = []
+end function

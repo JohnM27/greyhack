@@ -1,0 +1,13 @@
+import_code("/home/JohnM/Programs/Hacky2/hackyfunctions.src")
+import_code("/home/JohnM/Programs/Hacky2/hackymap.src")
+import_code("/home/JohnM/Programs/Hacky2/hackyscanner.src")
+import_code("/home/JohnM/Programs/Hacky2/hackyattack.src")
+
+clear_screen
+print "-------------------"
+print "- Hacky Tool v2.0 -"
+print "-------------------"
+while true
+	// Command input
+	import_code("/home/JohnM/Programs/Hacky2/hackycommand.src")
+end while

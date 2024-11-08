@@ -1,0 +1,68 @@
+input = user_input("Hacky> ")
+inputSplit = input.split(" ")
+// Exit program
+if inputSplit[0] == "exit" then
+	exit
+end if
+// Clear
+if inputSplit[0] == "clear" then
+	clear_screen
+	continue
+end if
+// Display infos
+if inputSplit[0] == "infos" then
+	funDisplayInfos
+	continue
+end if
+// Help
+// --- TODO ---
+// Target
+if inputSplit[0] == "target" then
+	if is_valid_ip(inputSplit[1]) then
+		funResetVariables true
+		Target.ip = inputSplit[1]
+		print "Target IP set to " + Target.ip
+		continue
+	end if
+	funResetVariables false
+	Target.port = inputSplit[1].to_int
+	print "Target port set to " + Target.port
+	continue
+end if
+// Map
+if inputSplit[0] == "map" then
+	map Target.ip
+	continue
+end if
+// Connection
+if inputSplit[0] == "connect" then
+	print "Connecting to " + Target.ip + " on port " + Target.port + "..."
+	funEstablishConnection Target.ip, Target.port
+	if not net_session then
+		print "Failed to connect!"
+		continue
+	end if
+	print "Connected! Using lib " + Target.lib.lib_name + " v" + Target.lib.version
+	continue
+end if
+// Scanner
+if inputSplit[0] == "scanner" then
+	scanner Target.lib
+	continue
+end if
+if inputSplit[0] == "attack" then
+	attack Target.lib, exploits
+	continue
+end if
+if inputSplit[0] == "shell" then
+	if inputSplit.len == 1 then
+		i = 0
+		print "Shells found:"
+		for result in exploitsRes
+			if typeof(result) == "shell" then print(i + " User: " + result.launch("/bin/whoami"))
+			i += 1
+		end for
+		if i == 0 then print("No shell founds")
+	end if
+	continue
+end if

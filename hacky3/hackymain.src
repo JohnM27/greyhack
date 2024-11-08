@@ -1,0 +1,87 @@
+metaxploit = include_lib("/lib/metaxploit.so")
+if not metaxploit then metaxploit = include_lib("./metaxploit.so")
+if not metaxploit then exit("Error: Missing metaxploit library")
+
+Target = {}
+Target.ip = null
+Target.port = null
+Target.lib = null
+Target.session = null
+Target.getIpStr = function
+	if is_valid_ip(Target.ip) then
+		return Target.ip
+	end if
+	return ""
+end function
+Target.getPortStr = function
+	if Target.port != null then
+		return Target.port
+	end if
+	return ""
+end function
+Target.isConnectedStr = function
+	if Target.session != null then
+		return "Connected"
+	end if
+	return ""
+end function
+Target.reset = function(resetIP)
+	if resetIP then Target.ip = null
+	Target.port = null
+	Target.lib = null
+	Target.session = null
+	// globals.exploits = []
+	// globals.exploitsRes = []
+end function
+
+// Import all code here
+import_code("/home/emi2772/Hacky/hackymap.src")
+
+clear_screen
+print "Initializing Hacky v2.1..."
+wait 1
+while true
+	input = user_input("Hacky[" + Target.getIpStr + " ; " + Target.getPortStr + " | " + Target.isConnectedStr + "]> ")
+	inputSplit = input.split(" ")
+
+	if inputSplit[0] == "exit" then
+		exit
+	end if
+
+	if inputSplit[0] == "clear" then
+		clear_screen
+	end if
+
+	if inputSplit[0] == "target" then
+		if is_valid_ip(inputSplit[1]) then
+			Target.reset true
+			Target.ip = inputSplit[1]
+			print "Target IP set to " + Target.ip
+			continue
+		end if
+		Target.reset false
+		Target.port = inputSplit[1].to_int
+		print "Target port set to " + Target.port
+		continue
+	end if
+
+	if inputSplit[0] == "connect" then
+		print "Connecting to " + Target.ip + " on port " + Target.port + "..."
+		Target.session = metaxploit.net_use(Target.ip, Target.port)
+		if not Target.session then
+			print "Failed to connect!"
+			continue
+		end if
+		Target.lib = Target.session.dump_lib
+		print "Connected! Using lib " + Target.lib.lib_name + " v" + Target.lib.version
+		continue
+	end if
+
+	if inputSplit[0] == "map" then
+		map Target.ip
+	end if
+
+	if inputSplit[0] == "map" then
+		map Target.ip
+	end if
+end while

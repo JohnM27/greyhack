@@ -1,0 +1,8 @@
+if params.len != 1 or params[0] == "-h" or params[0] == "--help" then
+	exit "Usage: " + program_path.split("/")[-1] + " [lib_name]</b>"
+end if
+metaxploit = include_lib("/lib/metaxploit.so")
+libName = params[0]
+lib = metaxploit.load("/lib/" + libName)
+if not lib then exit(libName + " not found")
+print libName + " " + lib.version

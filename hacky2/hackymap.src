@@ -1,0 +1,45 @@
+map = function(ip)
+	// Get router
+	isLanIp = is_lan_ip(ip)
+	if isLanIp then
+		router = get_router
+	else
+		router = get_router(ip)
+	end if
+	// Error handling
+	if router == null then
+		funErrorHandling "Error: Invalid IP address"
+		return 
+	end if
+	// Get ports
+	if not isLanIp then
+		ports = router.used_ports
+	else
+		ports = router.device_ports(ip)
+	end if
+	// Display ports
+	info = "PORT STATE SERVICE VERSION LAN"
+	// Router infos
+	info = info + "\n" + "0 open kernel_router " + router.kernel_version + " " + router.local_ip
+	// Ports infos
+	for port in ports
+		service_info = router.port_info(port)
+		lan_ip = port.get_lan_ip
+		port_status = "open"
+		if port.is_closed and not isLanIp then
+			port_status = "closed"
+		end if
+		info = info + "\n" + port.port_number + " " + port_status + " " + service_info + " " + lan_ip
+	end for
+	// Firewall rules
+	firewall_rules = router.firewall_rules
+	if firewall_rules.len != 0 then
+		info = info + "\n\n" + "FIREWALL:"
+		info = info + "\n" + "ACTION PORT SOURCE_IP DESTINATION_IP"
+		for rules in firewall_rules
+			info = info + "\n" + rules
+		end for
+	end if
+
+	print format_columns(info) + "\n"
+end function

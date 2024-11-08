@@ -1,0 +1,48 @@
+// Check params
+if params.len != 3 then
+	if params.len != 2 or params[0] == "-h" or params[0] == "--help" then
+		exit "Usage: " + program_path.split("/")[-1] + " [ip_address] [port]"
+	end if
+end if
+
+// Program start
+print "--- Scanner 1.0 ---"
+// metaxploit lib
+metaxploit = include_lib("/lib/metaxploit.so")
+if not metaxploit then exit("Error: Missing metaxploit library")
+
+address = params[0]
+port = params[1].to_int
+allData = false
+if params.len == 3 and (params[2] == "-a" or params[2] == "--all") then
+	allData = true
+end if
+net_session = metaxploit.net_use(address, port)
+
+if not net_session then exit("Error: Unable to connect")
+print "Connection established"
+
+metalib = net_session.dump_lib
+print "Start scanning " + metalib.lib_name + " v" + metalib.version
+memlist = metaxploit.scan(metalib)
+
+i = 0
+for memAddress in memlist
+	segments = metaxploit.scan_address(metalib, memAddress)
+	segments = segments.split("Unsafe check: ")
+	segments.remove 0
+	for segment in segments
+		varName = segment[segment.indexOf("<b>") + 3 : segment.indexOf("</b>")]
+		if (not allData and segment.indexOf("*") == null) or (allData) then
+			print i + ") " + memAddress + " ; " + varName
+
+			i += 1
+			if segment.indexOf("*") != null then
+				print segment[segment.indexOf("*") : segment.indexOf("\n") + 2]
+			else
+				print ""
+			end if
+		end if
+	end for
+end for
+exit "--- Scan complete ---"
